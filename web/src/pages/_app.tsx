@@ -5,8 +5,6 @@ import { createClient, dedupExchange, fetchExchange, Provider } from "urql";
 import { LoginMutation, MeDocument, MeQuery } from "../generated/graphql";
 import theme from "../theme";
 
-console.log({envs: process.env});
-
 const client = createClient({
   url: `${process.env.NEXT_PUBLIC_BE_APP_URI}/graphql`,
   fetchOptions: {

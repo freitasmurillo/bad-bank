@@ -15,16 +15,17 @@ import { Container } from "../components/Container";
 import { DarkModeSwitch } from "../components/DarkModeSwitch";
 import { Hero } from "../components/Hero";
 import { Main } from "../components/Main";
-import { useRegisterMutation } from "../generated/graphql";
+import { useLoginMutation, useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorsMap";
 
 const Index = () => {
   const router = useRouter(); 
   const [, register] = useRegisterMutation();
+  const [, login] = useLoginMutation();
 
   return (
     <Container height="100vh">
-      <Hero />
+    <Hero title="Register into the Bad bank" />
       <Main>
         <div>Register Page</div>
         <Flex bg="white.100" align="center" justify="center" h="100vh">
@@ -35,17 +36,23 @@ const Index = () => {
                 firstName: "",
                 lastName: "",
                 password: "",
-                rememberMe: false,
               }}
-              onSubmit={async ({ rememberMe, ...values }, { setErrors, setStatus }) => {
-                const { error, data } = await register({ data: values });
+              onSubmit={async (values, { setErrors }) => {
+                const { email, password } = values;
+
+                const { error } = await register({ data: values });
+                const { error: loginError } = await login({ email, password });
 
                 if (error?.graphQLErrors) {
                   setErrors(toErrorMap(error.graphQLErrors));
                   return
                 }
 
-                router.push('/');
+                if (loginError?.graphQLErrors) {
+                  router.push('/');
+                }
+
+                router.push('/dashboard');
               }}
             >
               {({ isSubmitting, handleSubmit, errors, touched }) => (
@@ -108,14 +115,6 @@ const Index = () => {
                       />
                       <FormErrorMessage>{errors.password}</FormErrorMessage>
                     </FormControl>
-                    <Field
-                      as={Checkbox}
-                      id="rememberMe"
-                      name="rememberMe"
-                      colorScheme="purple"
-                    >
-                      Remember me?
-                    </Field>
                     <Button
                       type="submit"
                       isLoading={isSubmitting}

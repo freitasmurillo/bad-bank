@@ -1,0 +1,18 @@
+query BankAccount($bankAccountId: String!) {
+  bankAccount(bankAccountId: $bankAccountId) {
+    id
+    userId
+    user {
+      id
+      firstName
+      lastName
+      name
+      email
+    }
+    statments {
+      operationType
+      amount
+      description
+    }
+  }
+}

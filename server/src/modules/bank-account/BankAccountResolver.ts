@@ -2,23 +2,15 @@ import bcrypt from 'bcryptjs';
 import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
 import { User } from '../../entity/User';
 import { RegisterInput } from '../user/register/RegisterInput';
-import { createConfirmationUrl } from '../utils/createConfirmationUrl';
-import { sendEmail } from '../utils/sendEmail';
-import { BankAccount } from './../../entity/BankAccount';
-import { isAuthenticated } from './../middleware/isAuthenticated';
+import { BankAccount } from '../../entity/BankAccount';
+import { isAuthenticated } from '../middleware/isAuthenticated';
 
 @Resolver()
 export class BankAccountResolver {
     @UseMiddleware(isAuthenticated)
-    @Query(() => [BankAccount], { nullable: true })
-    async bankAccounts(): Promise<BankAccount[] | null> {
-        return BankAccount.find({});
-    }
-
-    @UseMiddleware(isAuthenticated)
     @Query(() => BankAccount, { nullable: true })
     async bankAccount(
-        @Arg('bankAccountId') bankAccountId: number
+        @Arg('bankAccountId') bankAccountId: string
     ): Promise<BankAccount | null> {
         return BankAccount.findOne(bankAccountId as any);
     }
@@ -34,14 +26,10 @@ export class BankAccountResolver {
                 firstName,
                 lastName,
                 email,
-                password: hashedPass
+                password: hashedPass,
+                confirmed: true,
             })
             .save();
-
-        await sendEmail(
-            email,
-            await createConfirmationUrl(user.id as any)
-        );
 
         return BankAccount
             .create({ userId: user.id })

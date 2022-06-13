@@ -15,6 +15,21 @@ export type Scalars = {
   Float: number;
 };
 
+export type BankAccount = {
+  __typename?: 'BankAccount';
+  id: Scalars['ID'];
+  statments: Array<BankAccountStatment>;
+  user?: Maybe<User>;
+  userId: Scalars['ID'];
+};
+
+export type BankAccountStatment = {
+  __typename?: 'BankAccountStatment';
+  amount: Scalars['Float'];
+  description: Scalars['String'];
+  operationType: Scalars['String'];
+};
+
 export type ChangePasswordInput = {
   password: Scalars['String'];
   token: Scalars['String'];
@@ -22,12 +37,18 @@ export type ChangePasswordInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  bankAccountCreation: BankAccount;
   changePassword?: Maybe<User>;
   confirmUserEmail: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
   login?: Maybe<User>;
   logout: Scalars['Boolean'];
   register: User;
+};
+
+
+export type MutationBankAccountCreationArgs = {
+  data: RegisterInput;
 };
 
 
@@ -56,15 +77,16 @@ export type MutationRegisterArgs = {
   data: RegisterInput;
 };
 
-export type PasswordInput = {
-  password: Scalars['String'];
-};
-
 export type Query = {
   __typename?: 'Query';
-  hello: Scalars['String'];
+  bankAccount?: Maybe<BankAccount>;
   me?: Maybe<User>;
   users?: Maybe<Array<User>>;
+};
+
+
+export type QueryBankAccountArgs = {
+  bankAccountId: Scalars['String'];
 };
 
 export type RegisterInput = {
@@ -102,6 +124,13 @@ export type RegisterMutationVariables = Exact<{
 
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } };
+
+export type BankAccountQueryVariables = Exact<{
+  bankAccountId: Scalars['String'];
+}>;
+
+
+export type BankAccountQuery = { __typename?: 'Query', bankAccount?: { __typename?: 'BankAccount', id: string, userId: string, user?: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } | null, statments: Array<{ __typename?: 'BankAccountStatment', operationType: string, amount: number, description: string }> } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -152,6 +181,30 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const BankAccountDocument = gql`
+    query BankAccount($bankAccountId: String!) {
+  bankAccount(bankAccountId: $bankAccountId) {
+    id
+    userId
+    user {
+      id
+      firstName
+      lastName
+      name
+      email
+    }
+    statments {
+      operationType
+      amount
+      description
+    }
+  }
+}
+    `;
+
+export function useBankAccountQuery(options: Omit<Urql.UseQueryArgs<BankAccountQueryVariables>, 'query'>) {
+  return Urql.useQuery<BankAccountQuery>({ query: BankAccountDocument, ...options });
 };
 export const MeDocument = gql`
     query Me {

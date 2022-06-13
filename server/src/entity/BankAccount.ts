@@ -25,7 +25,7 @@ export class BankAccount extends BaseEntity {
     @ObjectIdColumn()
     id: ObjectId;
 
-    @Field(() => User)
+    @Field(() => ID)
     @Column()
     userId: ObjectId;
 
