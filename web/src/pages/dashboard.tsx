@@ -21,23 +21,28 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Field, Formik } from "formik";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
 import { Container } from "../components/Container";
 import { Hero } from "../components/Hero";
 import { Main } from "../components/Main";
 import Navbar from "../components/NavBar";
 import { useMeQuery, useOperateMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorsMap";
-import { goToLoginIfNotAuthenticated, userIsAuthenticated } from "../utils/userIsAuthenticated";
 
-const Index = () => {
-  const [{ data }] = useMeQuery();
-  
+const Dashboard = () => {
+  const [{ data, fetching }] = useMeQuery();
+
+  useEffect(() => {
+    if (!fetching && !data?.me) {  
+      const router = useRouter();
+      router.replace('/');
+    }
+  });
+
   const [, operateBankAccount] = useOperateMutation();
 
-  userIsAuthenticated(goToLoginIfNotAuthenticated);
-
-  const [, setTabIndex] = React.useState(0);
+  const [, setTabIndex] = React.useState(0);let key = 0;
 
   return (
     <>
@@ -138,7 +143,6 @@ const Index = () => {
                       <Table variant="striped" colorScheme="green" size="lg">
                         <Thead>
                           <Tr>
-                            <Th scope="col">Transaction Id</Th>
                             <Th scope="col">Transaction Type</Th>
                             <Th scope="col">Amount</Th>
                             <Th scope="col">Description</Th>
@@ -150,14 +154,12 @@ const Index = () => {
                             ? null
                             : data?.me.statments.map(
                                 ({
-                                  id = "a",
                                   operationType,
                                   amount,
                                   description,
                                   balance,
                                 }: any) => (
-                                  <Tr key={id}>
-                                    <Td>{id + 1}</Td>
+                                  <Tr key={key++}>
                                     <Td>{operationType}</Td>
                                     <Td>{amount}</Td>
                                     <Td>{description}</Td>
@@ -179,4 +181,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Dashboard;

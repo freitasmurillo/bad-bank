@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -16,16 +15,23 @@ import { Container } from "../components/Container";
 import NextLink from "next/link";
 import { Hero } from "../components/Hero";
 import { Main } from "../components/Main";
-import { useLoginMutation, useRegisterMutation } from "../generated/graphql";
+import { useLoginMutation, useMeQuery, useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorsMap";
-import { goToDashboardIfAuthenticated, userIsAuthenticated } from "../utils/userIsAuthenticated";
+import { useEffect } from "react";
 
-const Index = () => {
+const Register = () => {
   const router = useRouter(); 
+  
   const [, register] = useRegisterMutation();
   const [, login] = useLoginMutation();
 
-  userIsAuthenticated(goToDashboardIfAuthenticated);
+  const [{ data, fetching }] = useMeQuery();
+
+  useEffect(() => {  
+    if (!fetching && data?.me) {
+      router.replace('/dashboard');
+    }
+  });
 
   return (
     <Container height="100vh">
@@ -128,7 +134,7 @@ const Index = () => {
                       colorScheme="purple"
                       width="full"
                     >
-                      Login
+                      Create an Account
                     </Button>
                   </VStack>
                 </form>
@@ -141,4 +147,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Register;
