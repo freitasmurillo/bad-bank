@@ -26,44 +26,17 @@ export type BankAccount = {
 export type BankAccountStatment = {
   __typename?: 'BankAccountStatment';
   amount: Scalars['Float'];
+  balance: Scalars['Float'];
   description: Scalars['String'];
   operationType: Scalars['String'];
 };
 
-export type ChangePasswordInput = {
-  password: Scalars['String'];
-  token: Scalars['String'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
-  bankAccountCreation: BankAccount;
-  changePassword?: Maybe<User>;
-  confirmUserEmail: Scalars['Boolean'];
-  forgotPassword: Scalars['Boolean'];
-  login?: Maybe<User>;
+  login?: Maybe<BankAccount>;
   logout: Scalars['Boolean'];
-  register: User;
-};
-
-
-export type MutationBankAccountCreationArgs = {
-  data: RegisterInput;
-};
-
-
-export type MutationChangePasswordArgs = {
-  data: ChangePasswordInput;
-};
-
-
-export type MutationConfirmUserEmailArgs = {
-  token: Scalars['String'];
-};
-
-
-export type MutationForgotPasswordArgs = {
-  email: Scalars['String'];
+  operate: BankAccount;
+  register: BankAccount;
 };
 
 
@@ -73,15 +46,26 @@ export type MutationLoginArgs = {
 };
 
 
+export type MutationOperateArgs = {
+  bankAccountId: Scalars['String'];
+  payload: OperatePayloaInput;
+};
+
+
 export type MutationRegisterArgs = {
   data: RegisterInput;
+};
+
+export type OperatePayloaInput = {
+  amount: Scalars['Float'];
+  description: Scalars['String'];
+  operationType: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
   bankAccount?: Maybe<BankAccount>;
-  me?: Maybe<User>;
-  users?: Maybe<Array<User>>;
+  me?: Maybe<BankAccount>;
 };
 
 
@@ -111,46 +95,52 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } | null };
+export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'BankAccount', id: string, userId: string, user?: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } | null, statments: Array<{ __typename?: 'BankAccountStatment', operationType: string, amount: number, description: string, balance: number }> } | null };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
 
+export type OperateMutationVariables = Exact<{
+  bankAccountId: Scalars['String'];
+  payload: OperatePayloaInput;
+}>;
+
+
+export type OperateMutation = { __typename?: 'Mutation', operate: { __typename?: 'BankAccount', id: string, userId: string, user?: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } | null, statments: Array<{ __typename?: 'BankAccountStatment', operationType: string, amount: number, description: string, balance: number }> } };
+
 export type RegisterMutationVariables = Exact<{
   data: RegisterInput;
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } };
-
-export type BankAccountQueryVariables = Exact<{
-  bankAccountId: Scalars['String'];
-}>;
-
-
-export type BankAccountQuery = { __typename?: 'Query', bankAccount?: { __typename?: 'BankAccount', id: string, userId: string, user?: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } | null, statments: Array<{ __typename?: 'BankAccountStatment', operationType: string, amount: number, description: string }> } | null };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'BankAccount', id: string, userId: string, user?: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } | null, statments: Array<{ __typename?: 'BankAccountStatment', operationType: string, amount: number, description: string }> } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', email: string, firstName: string, id: string, lastName: string, name: string } | null };
-
-export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type UsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id: string, name: string, firstName: string, lastName: string }> | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'BankAccount', id: string, userId: string, user?: { __typename?: 'User', id: string, firstName: string, lastName: string, name: string, email: string } | null, statments: Array<{ __typename?: 'BankAccountStatment', operationType: string, amount: number, description: string, balance: number }> } | null };
 
 
 export const LoginDocument = gql`
     mutation Login($password: String!, $email: String!) {
   login(password: $password, email: $email) {
     id
-    firstName
-    lastName
-    name
-    email
+    userId
+    user {
+      id
+      firstName
+      lastName
+      name
+      email
+    }
+    statments {
+      operationType
+      amount
+      description
+      balance
+    }
   }
 }
     `;
@@ -167,24 +157,34 @@ export const LogoutDocument = gql`
 export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
-export const RegisterDocument = gql`
-    mutation Register($data: RegisterInput!) {
-  register(data: $data) {
+export const OperateDocument = gql`
+    mutation Operate($bankAccountId: String!, $payload: OperatePayloaInput!) {
+  operate(bankAccountId: $bankAccountId, payload: $payload) {
     id
-    firstName
-    lastName
-    name
-    email
+    userId
+    user {
+      id
+      firstName
+      lastName
+      name
+      email
+    }
+    statments {
+      operationType
+      amount
+      description
+      balance
+    }
   }
 }
     `;
 
-export function useRegisterMutation() {
-  return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+export function useOperateMutation() {
+  return Urql.useMutation<OperateMutation, OperateMutationVariables>(OperateDocument);
 };
-export const BankAccountDocument = gql`
-    query BankAccount($bankAccountId: String!) {
-  bankAccount(bankAccountId: $bankAccountId) {
+export const RegisterDocument = gql`
+    mutation Register($data: RegisterInput!) {
+  register(data: $data) {
     id
     userId
     user {
@@ -203,35 +203,31 @@ export const BankAccountDocument = gql`
 }
     `;
 
-export function useBankAccountQuery(options: Omit<Urql.UseQueryArgs<BankAccountQueryVariables>, 'query'>) {
-  return Urql.useQuery<BankAccountQuery>({ query: BankAccountDocument, ...options });
+export function useRegisterMutation() {
+  return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
 export const MeDocument = gql`
     query Me {
   me {
-    email
-    firstName
     id
-    lastName
-    name
+    userId
+    user {
+      id
+      firstName
+      lastName
+      name
+      email
+    }
+    statments {
+      operationType
+      amount
+      description
+      balance
+    }
   }
 }
     `;
 
 export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
-};
-export const UsersDocument = gql`
-    query Users {
-  users {
-    id
-    name
-    firstName
-    lastName
-  }
-}
-    `;
-
-export function useUsersQuery(options?: Omit<Urql.UseQueryArgs<UsersQueryVariables>, 'query'>) {
-  return Urql.useQuery<UsersQuery>({ query: UsersDocument, ...options });
 };

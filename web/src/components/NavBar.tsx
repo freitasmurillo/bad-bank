@@ -9,7 +9,7 @@ const Navbar = () => {
     if (data?.me) {
         body = (
             <>
-                <Box ml={'auto'} color="black">Welcome, {data.me.name}</Box>
+                <Box ml={'auto'} color="black">Welcome, {data.me.user.name}</Box>
                 <Button 
                     onClick={() => { logout(); } }
                     isLoading={logoutFetching}

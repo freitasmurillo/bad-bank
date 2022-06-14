@@ -7,21 +7,25 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Link,
   VStack,
 } from "@chakra-ui/react";
 import { Field, Formik } from "formik";
 import { useRouter } from "next/router";
 import { Container } from "../components/Container";
-import { DarkModeSwitch } from "../components/DarkModeSwitch";
+import NextLink from "next/link";
 import { Hero } from "../components/Hero";
 import { Main } from "../components/Main";
 import { useLoginMutation, useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorsMap";
+import { goToDashboardIfAuthenticated, userIsAuthenticated } from "../utils/userIsAuthenticated";
 
 const Index = () => {
   const router = useRouter(); 
   const [, register] = useRegisterMutation();
   const [, login] = useLoginMutation();
+
+  userIsAuthenticated(goToDashboardIfAuthenticated);
 
   return (
     <Container height="100vh">
@@ -115,6 +119,9 @@ const Index = () => {
                       />
                       <FormErrorMessage>{errors.password}</FormErrorMessage>
                     </FormControl>
+                    <NextLink href="/">
+                      <Link>Login</Link>
+                    </NextLink>
                     <Button
                       type="submit"
                       isLoading={isSubmitting}
@@ -130,12 +137,6 @@ const Index = () => {
           </Box>
         </Flex>
       </Main>
-
-      <DarkModeSwitch />
-      {/* <Footer>
-      <Text>Next ❤️ Chakra</Text>
-    </Footer> */}
-      {/* <CTA /> */}
     </Container>
   );
 };

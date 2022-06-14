@@ -1,5 +1,5 @@
-query BankAccount($bankAccountId: String!) {
-  bankAccount(bankAccountId: $bankAccountId) {
+mutation Operate($bankAccountId: String!, $payload: OperatePayloaInput!) {
+  operate(bankAccountId: $bankAccountId, payload: $payload) {
     id
     userId
     user {
@@ -13,6 +13,7 @@ query BankAccount($bankAccountId: String!) {
       operationType
       amount
       description
+      balance
     }
   }
 }

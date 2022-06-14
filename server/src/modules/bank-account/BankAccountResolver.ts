@@ -16,7 +16,7 @@ export class BankAccountResolver {
     }
 
     @Mutation(() => BankAccount)
-    async bankAccountCreation(
+    async register(
         @Arg("data") { firstName, lastName, email, password }: RegisterInput
     ): Promise<BankAccount> {
         const hashedPass = await bcrypt.hash(password, 12);

@@ -1,9 +1,18 @@
 mutation Register($data: RegisterInput!) {
   register(data: $data) {
     id
-    firstName
-    lastName
-    name
-    email
+    userId
+    user {
+      id
+      firstName
+      lastName
+      name
+      email
+    }
+    statments {
+      operationType
+      amount
+      description
+    }
   }
 }

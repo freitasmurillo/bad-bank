@@ -13,7 +13,6 @@ import { Field, Formik } from "formik";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Container } from "../components/Container";
-import { DarkModeSwitch } from "../components/DarkModeSwitch";
 import { Hero } from "../components/Hero";
 import { Main } from "../components/Main";
 import { useLoginMutation } from "../generated/graphql";
@@ -96,8 +95,6 @@ const Login = () => {
           </Box>
         </Flex>
       </Main>
-
-      <DarkModeSwitch />
     </Container>
   );
 };

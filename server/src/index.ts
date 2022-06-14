@@ -22,16 +22,15 @@ const main = async () => {
 
     const RedisStore = connectRedis(session);
 
-    app.set('trust proxy', process.env.NODE_ENV === 'production')
+    // app.set('trust proxy', process.env.NODE_ENV === 'production')
+    app.set('trust proxy', 1)
 
     const cookie = {
         httpOnly: false,
-        secure: true,
+        secure: false,
         maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
-        sameSite: 'none' as any,
+        // sameSite: 'none' as any,
     };
-
-    console.log({ cookie });
 
     app.use(
         session({
@@ -56,12 +55,7 @@ const main = async () => {
         ],
     };
 
-    console.log({ cors });
-
-    apolloServer.applyMiddleware({
-        app,
-        cors,
-    });
+    apolloServer.applyMiddleware({ app, cors });
 
     app.listen(process.env?.PORT || 4000, () => {
         console.log(`

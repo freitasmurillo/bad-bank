@@ -24,17 +24,19 @@ import {
 import { Field, Formik } from "formik";
 import React from "react";
 import { Container } from "../components/Container";
-import { DarkModeSwitch } from "../components/DarkModeSwitch";
 import { Hero } from "../components/Hero";
 import { Main } from "../components/Main";
 import Navbar from "../components/NavBar";
-import { useBankAccountQuery } from "../generated/graphql";
+import { useMeQuery, useOperateMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorsMap";
+import { goToLoginIfNotAuthenticated, userIsAuthenticated } from "../utils/userIsAuthenticated";
 
 const Index = () => {
-  const [{ data }] = useBankAccountQuery({
-    variables: { bankAccountId: "62a7a8e8fa28e56fb2d4df3d" },
-  });
+  const [{ data }] = useMeQuery();
+  
+  const [, operateBankAccount] = useOperateMutation();
+
+  userIsAuthenticated(goToLoginIfNotAuthenticated);
 
   const [, setTabIndex] = React.useState(0);
 
@@ -60,62 +62,70 @@ const Index = () => {
 
                 <TabPanels>
                   <TabPanel>
-                    <Formik
-                      initialValues={{}}
-                      onSubmit={async (values, { setErrors }) => {
-                        console.log({values})
-                        // const { error } = await login(values);
+                    <Box bg="white" p={10} rounded="lg" w="60vh">
+                      <Formik
+                        initialValues={{
+                          operationType: "",
+                          amount: 0,
+                          description: "",
+                        }}
+                        onSubmit={async (payload, { setErrors }) => {
+                          const { error } = await operateBankAccount({
+                            bankAccountId: data!.me!.id,
+                            payload,
+                          });
 
-                        // if (error?.graphQLErrors) {
-                        //   setErrors(toErrorMap(error.graphQLErrors));
-                        //   return;
-                        // }
+                          if (error?.graphQLErrors) {
+                            setErrors(toErrorMap(error.graphQLErrors));
+                            return;
+                          }
 
-                        setTabIndex(1);
-                      }}
-                    >
-                      {({ isSubmitting, handleSubmit, errors, touched }) => (
-                        <form onSubmit={handleSubmit}>
-                          <VStack spacing={4} align="flex-start">
-                            <FormControl>
-                              <FormLabel htmlFor="operationType">
-                                Operation
-                              </FormLabel>
-                              <Field
-                                as={Select}
-                                id="operationType"
-                                name="operationType"
-                                type="operationType"
-                                placeholder='Select the desired operation type' 
+                          setTabIndex(1);
+                        }}
+                      >
+                        {({ isSubmitting, handleSubmit, errors, touched }) => (
+                          <form onSubmit={handleSubmit}>
+                            <VStack spacing={4} align="flex-start">
+                              <FormControl>
+                                <FormLabel htmlFor="operationType">
+                                  Operation
+                                </FormLabel>
+                                <Field
+                                  as={Select}
+                                  id="operationType"
+                                  name="operationType"
+                                  type="operationType"
+                                  placeholder='Select the desired operation type' 
+                                >
+                                  <option value='deposit'>Deposit</option>
+                                  <option value='withdraw'>WithDraw</option>
+                                </Field>
+                              </FormControl>
+                              <FormControl>
+                                <FormLabel htmlFor="amount">Amount</FormLabel>
+                                <AddIcon />
+                                <MinusIcon />
+                                <Field
+                                  as={Input}
+                                  id="amount"
+                                  name="amount"
+                                  type="number"
+                                  variant="filled"
+                                />
+                              </FormControl>
+                              <Button
+                                type="submit"
+                                isLoading={isSubmitting}
+                                colorScheme="purple"
+                                width="full"
                               >
-                                <option value='deposit'>Deposit</option>
-                                <option value='withdraw'>WithDraw</option>
-                              </Field>
-                            </FormControl>
-                            <FormControl>
-                              <FormLabel htmlFor="amount">Amount</FormLabel>
-                              <AddIcon />
-                              <MinusIcon />
-                              <Field
-                                as={Input}
-                                id="amount"
-                                name="amount"
-                                type="number"
-                                variant="filled"
-                              />
-                            </FormControl>
-                            <Button
-                              type="submit"
-                              isLoading={isSubmitting}
-                              colorScheme="purple"
-                              width="full"
-                            >
-                              Make new operation
-                            </Button>
-                          </VStack>
-                        </form>
-                      )}
-                    </Formik>
+                                Make new operation
+                              </Button>
+                            </VStack>
+                          </form>
+                        )}
+                      </Formik>
+                    </Box>
                   </TabPanel>
                   <TabPanel>
                     <TableContainer>
@@ -130,21 +140,22 @@ const Index = () => {
                           </Tr>
                         </Thead>
                         <Tbody>
-                          {!data?.bankAccount
+                          {!data?.me
                             ? null
-                            : data?.bankAccount.statments.map(
+                            : data?.me.statments.map(
                                 ({
                                   id = "a",
                                   operationType,
                                   amount,
                                   description,
+                                  balance,
                                 }: any) => (
                                   <Tr key={id}>
                                     <Td>{id + 1}</Td>
                                     <Td>{operationType}</Td>
                                     <Td>{amount}</Td>
                                     <Td>{description}</Td>
-                                    <Td>user.balance?</Td>
+                                    <Td>{balance}</Td>
                                   </Tr>
                                 )
                               )}
@@ -157,7 +168,6 @@ const Index = () => {
             </Box>
           </Flex>
         </Main>
-        <DarkModeSwitch />
       </Container>
     </>
   );
