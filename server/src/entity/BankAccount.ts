@@ -16,6 +16,10 @@ class BankAccountStatment {
     @Field()
     @Column()
     description: string
+
+    @Field()
+    @Column()
+    balance: number
 }
 
 @ObjectType()
@@ -36,5 +40,10 @@ export class BankAccount extends BaseEntity {
 
     @Field(() => [BankAccountStatment])
     @Column("array")
-    statments: BankAccountStatment[] = [];
+    statments: BankAccountStatment[] = [{
+        operationType: '-',
+        amount: 0,
+        description: 'Initial Setup',
+        balance: 0,
+    }];
 }

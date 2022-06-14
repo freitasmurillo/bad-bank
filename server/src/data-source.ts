@@ -3,7 +3,7 @@ import { DataSource } from "typeorm";
 export const AppDataSource = new DataSource({
     name: "default",
     type: "mongodb",
-    url: 'mongodb+srv://bad-bank-root:gkv%2Aruz4uzu1HEH3ejv@cluster0.uuqtkxy.mongodb.net/bad-bank?retryWrites=true&w=majority',
+    url: process.env.MONGODB_URL,
     synchronize: true,
     logging: false,
     entities: [

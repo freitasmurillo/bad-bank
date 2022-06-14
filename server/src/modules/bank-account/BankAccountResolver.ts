@@ -4,6 +4,7 @@ import { User } from '../../entity/User';
 import { RegisterInput } from '../user/register/RegisterInput';
 import { BankAccount } from '../../entity/BankAccount';
 import { isAuthenticated } from '../middleware/isAuthenticated';
+import { OperatePayloaInput } from './OperateInput';
 
 @Resolver()
 export class BankAccountResolver {
@@ -34,5 +35,26 @@ export class BankAccountResolver {
         return BankAccount
             .create({ userId: user.id })
             .save();
+    }
+
+    @Mutation(() => BankAccount)
+    async operate(
+        @Arg('bankAccountId') bankAccountId: string,
+        @Arg("payload") payload: OperatePayloaInput
+    ): Promise<BankAccount> {
+        const bankAccount = await BankAccount.findOne(bankAccountId as any);
+
+        if (!bankAccount) {
+            throw new Error('Bank Account not found');
+        }
+
+        const lastStatment = bankAccount.statments[bankAccount?.statments.length - 1];
+
+        bankAccount.statments.push({
+            ...payload,
+            balance: lastStatment.balance + payload.amount,
+        })
+
+        return bankAccount.save();
     }
 }

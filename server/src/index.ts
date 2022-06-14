@@ -27,9 +27,9 @@ const main = async () => {
 
     const cookie = {
         httpOnly: false,
-        secure: false,
+        secure: true,
         maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
-        // sameSite: 'none' as any,
+        sameSite: 'none' as any,
     };
 
     app.use(
