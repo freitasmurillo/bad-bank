@@ -1,4 +1,3 @@
-import { AddIcon, MinusIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -94,7 +93,6 @@ const Index = () => {
                                   as={Select}
                                   id="operationType"
                                   name="operationType"
-                                  type="operationType"
                                   placeholder='Select the desired operation type' 
                                 >
                                   <option value='deposit'>Deposit</option>
@@ -102,9 +100,17 @@ const Index = () => {
                                 </Field>
                               </FormControl>
                               <FormControl>
+                                <FormLabel htmlFor="description">Description</FormLabel>
+                                <Field
+                                  as={Input}
+                                  id="description"
+                                  name="description"
+                                  type="text"
+                                  variant="filled"
+                                />
+                              </FormControl>
+                              <FormControl>
                                 <FormLabel htmlFor="amount">Amount</FormLabel>
-                                <AddIcon />
-                                <MinusIcon />
                                 <Field
                                   as={Input}
                                   id="amount"

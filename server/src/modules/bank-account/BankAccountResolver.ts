@@ -52,7 +52,7 @@ export class BankAccountResolver {
 
         bankAccount.statments.push({
             ...payload,
-            balance: lastStatment.balance + payload.amount,
+            balance: lastStatment.balance + (payload.amount * (payload.operationType === 'withdraw' ? -1 : 1)),
         })
 
         return bankAccount.save();
